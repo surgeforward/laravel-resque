@@ -48,6 +48,13 @@ class ResqueQueue extends Queue {
 	{
 		$queue = (is_null($queue) ? $job : $queue);
 
+		// wrap $job & $data so we can handle Jobs our own
+		$data = [
+			'job' => $job,
+			'data' => $data,
+		];
+		$job  = 'Awellis13\Resque\ResqueJobHandler';
+
 		return Resque::enqueue($queue, $job, $data, $track);
 	}
 
@@ -89,8 +96,15 @@ class ResqueQueue extends Queue {
 		}
 
 		$queue = (is_null($queue) ? $job : $queue);
+		
+		// wrap $job & $data so we can handle Jobs our own
+		$data = [
+			'job' => $job,
+			'data' => $data,
+		];
+		$job  = 'Awellis13\Resque\ResqueJobHandler';
 
-		if (is_int($delay))
+		if (is_int($delay) && $delay < time())
 		{
 			ResqueScheduler::enqueueIn($delay, $queue, $job, $data);
 		}
